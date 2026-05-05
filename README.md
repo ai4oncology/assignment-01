@@ -1,4 +1,4 @@
-# Assignment 01 — White Blood Cell Image Analysis
+# Assignment 01 — Classification, Segmentation & MIL
 
 **ML4Health 2026**
 
@@ -133,5 +133,4 @@ A `feedback` pull request is created automatically on your fork. Instructors
 will leave comments there — **do not merge it**.
 
 If you could not solve part of the exercise, describe what you tried in
-[`experiences.md`](experiences.md). General questions go to the course forum
-on ILIAS.
+[`experiences.md`](experiences.md). General questions go to the course forum on ILIAS.

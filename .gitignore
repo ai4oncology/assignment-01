@@ -1,6 +1,6 @@
-# Solutions — never push to student repo
 solution.py
 *_solution.py
+
 # Dataset -- clone separately, see README
 segmentation_WBC/
 
@@ -18,8 +18,7 @@ build/
 # Marimo session caches
 __marimo__/
 
-# Jupyter (legacy)
-.ipynb_checkpoints/
+.pytest_cache/
 
 # Model checkpoints
 *.pt
