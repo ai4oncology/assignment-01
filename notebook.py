@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.3"
+__generated_with = "0.23.4"
 app = marimo.App()
 
 
@@ -9,6 +9,37 @@ def _():
     import marimo as mo
 
     return (mo,)
+
+
+@app.cell
+def _():
+    import json as _json
+    from pathlib import Path as _Path
+
+    _submission_path = _Path("submission.json")
+
+    def submission_default(key, default=None):
+        """Return the saved value for `key`, re-reading submission.json each call."""
+        if not _submission_path.exists():
+            return default
+        try:
+            data = _json.loads(_submission_path.read_text())
+        except _json.JSONDecodeError:
+            return default
+        return data.get(key, default)
+
+    def submission_radio_default(key, options, default=None):
+        saved = submission_default(key, default)
+        if saved is None:
+            return default
+        if saved in options:
+            return saved
+        for opt_key, opt_value in options.items():
+            if opt_value == saved:
+                return opt_key
+        return default
+
+    return submission_default, submission_radio_default
 
 
 @app.cell(hide_code=True)
@@ -193,15 +224,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_cls_taskframing = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Input x = a single cell-crop image; output y = an integer label in {0, 1, 2, 3}; task = multi-class classification.": "a",
             "Input x = a single cell-crop image; output y = a 4-dimensional one-hot vector; task = multi-label classification.": "b",
             "Input x = a single cell-crop image; output y = an integer label in {0, 1, 2, 3, 4} covering all five WBC types in the original dataset; task = multi-class classification.": "c",
             "Input x = a single cell-crop image; output y = an integer in {0, 1, 2, 3}; task = ordinal regression (WBC types form a natural ordering).": "d",
-        },
+        }
+    q_cls_taskframing = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_CLS_TASKFRAMING", _options),
     )
     q_cls_taskframing
     return (q_cls_taskframing,)
@@ -259,15 +292,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q2_1 = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
         "Randomly split all single-cell images into train/val/test, ignoring slide ID.": "a",
         "Split at the slide level, so all cells from the same slide appear only in one split.": "b",
         "Stratified split keeping each slide's cells proportionally distributed across train/val/test.": "c",
         "Slide-level test, but random cell-level for train/val.": "d",
-        },
+        }
+    q2_1 = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_CLS_SPLIT", _options),
     )
     q2_1
     return (q2_1,)
@@ -439,15 +474,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_cls_formulas = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Precision = TP / (TP + FN), Recall = TP / (TP + FP)": "a",
             "Precision = TP / (TP + FP), Recall = TP / (TP + FN)": "b",
             "Precision = TN / (TN + FP), Recall = TN / (TN + FN)": "c",
             "Precision = FP / (TP + FP), Recall = FN / (TP + FN)": "d",
-        },
+        }
+    q_cls_formulas = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_CLS_FORMULAS", _options),
     )
     q_cls_formulas
     return (q_cls_formulas,)
@@ -464,15 +501,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_cls_f1_calc = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "0.25": "a",
             "0.50": "b",
             "0.67": "c",
             "1.00": "d",
-        },
+        }
+    q_cls_f1_calc = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_CLS_F1_CALC", _options),
     )
     q_cls_f1_calc
     return (q_cls_f1_calc,)
@@ -496,15 +535,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_cls_pr_scenario = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "A → precision, B → recall": "a",
             "A → recall, B → precision": "b",
             "A → accuracy, B → recall": "c",
             "A → recall, B → accuracy": "d",
-        },
+        }
+    q_cls_pr_scenario = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_CLS_PR_SCENARIO", _options),
     )
     q_cls_pr_scenario
     return (q_cls_pr_scenario,)
@@ -522,15 +563,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_majority = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Precision = 0.0 and recall = 0.0.": "a",
             "Precision = 1.0 and recall = 0.0.": "b",
             "Precision = 0.0 and recall = 1.0.": "c",
             "Precision = 1.0 and recall = 1.0.": "d",
-        },
+        }
+    q_majority = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_CLS_MAJORITY", _options),
     )
     q_majority
     return (q_majority,)
@@ -547,15 +590,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_cls_acc_misleading = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Accuracy can be high even if the model ignores rare classes.": "a",
             "Accuracy cannot be computed for multi-class classification.": "b",
             "Accuracy is always lower than macro-F1.": "c",
             "Accuracy only measures false positives.": "d",
-        },
+        }
+    q_cls_acc_misleading = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_CLS_ACC_MISLEADING", _options),
     )
     q_cls_acc_misleading
     return (q_cls_acc_misleading,)
@@ -723,15 +768,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_cls_macro_micro = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Micro-F1 gives each class equal weight, while macro-F1 gives each example equal weight.": "a",
             "Macro-F1 averages F1 across classes equally, while micro-F1 aggregates decisions across all examples.": "b",
             "Macro-F1 is always the same as accuracy.": "c",
             "Micro-F1 ignores majority classes.": "d",
-        },
+        }
+    q_cls_macro_micro = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_CLS_MACRO_MICRO", _options),
     )
     q_cls_macro_micro
     return (q_cls_macro_micro,)
@@ -856,15 +903,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q6a = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Validation accuracy.": "a",
             "Validation macro-F1.": "b",
             "Worst-class recall (the recall on the rarest / most-missed class).": "c",
             "Training loss.": "d",
-        },
+        }
+    q6a = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_CLS_E14A", _options),
     )
     q6a
     return (q6a,)
@@ -879,15 +928,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q6b = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Class weights and model capacity are interchangeable — either alone is enough.": "a",
             "Class weights stop the model from collapsing onto the majority class without changing capacity; further absolute gains require more capacity (e.g. a pretrained backbone).": "b",
             "Class weights hurt rare-class recall and should be avoided.": "c",
             "Once class weights are applied, model capacity becomes irrelevant.": "d",
-        },
+        }
+    q6b = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_CLS_E14B", _options),
     )
     q6b
     return (q6b,)
@@ -902,15 +953,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q6c = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Train each model for more epochs and pick the one with the lowest training loss.": "a",
             "Try several optimizers and pick whichever wins on the validation set.": "b",
             "Evaluate the chosen model on the held-out test set, compute bootstrap confidence intervals, and inspect the per-class confusion matrix.": "c",
             "Skip further checks — the validation numbers are enough.": "d",
-        },
+        }
+    q6c = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_CLS_E14C", _options),
     )
     q6c
     return (q6c,)
@@ -931,15 +984,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_cls_cvbias_dir = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Random CV gives an upward-biased estimate (correlated train/test sibling images).": "a",
             "Random CV gives a downward-biased estimate.": "b",
             "No bias — both are equivalent.": "c",
             "The sign depends on the random seed.": "d",
-        },
+        }
+    q_cls_cvbias_dir = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_CLS_CVBIAS_DIR", _options),
     )
     q_cls_cvbias_dir
     return (q_cls_cvbias_dir,)
@@ -966,15 +1021,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_cls_cvbias_assum = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Cells from the same patient are positively correlated through latent patient factors (e.g. staining batch, scanner, anatomy).": "a",
             "Labels are uniformly distributed.": "b",
             "All patients contribute the same number of cells.": "c",
             "The model is convex.": "d",
-        },
+        }
+    q_cls_cvbias_assum = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_CLS_CVBIAS_ASSUM", _options),
     )
     q_cls_cvbias_assum
     return (q_cls_cvbias_assum,)
@@ -1004,10 +1061,11 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _(mo, submission_default):
     q_cls_baso_count = mo.ui.number(
         start=0, stop=1000, step=1,
         label="Cells flagged for manual verification:",
+        value=submission_default("Q_CLS_BASO_COUNT"),
     )
     q_cls_baso_count
     return (q_cls_baso_count,)
@@ -1023,10 +1081,11 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _(mo, submission_default):
     q_cls_baso_ppv = mo.ui.number(
         start=0.0, stop=1.0, step=0.01,
         label="PPV:",
+        value=submission_default("Q_CLS_BASO_PPV"),
     )
     q_cls_baso_ppv
     return (q_cls_baso_ppv,)
@@ -1041,15 +1100,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_cls_baso_adopt = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Yes — 95% sensitivity is excellent and saves about 94% of manual lab work.": "a",
             "No — at this prevalence ~91% of \"positives\" are false alarms (PPV ≈ 9%) and missing 5% of true basophils may be clinically unacceptable when basophil counts are themselves a diagnostic signal.": "b",
             "Yes, but only if the lab also uses a separate model for monocytes.": "c",
             "No, because 95% sensitivity is too low to be useful.": "d",
-        },
+        }
+    q_cls_baso_adopt = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_CLS_BASO_ADOPT", _options),
     )
     q_cls_baso_adopt
     return (q_cls_baso_adopt,)
@@ -1100,15 +1161,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_cls_mcc_vs_f1 = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "MCC is mathematically guaranteed to be larger than F1, so it is the more optimistic single-number summary.": "a",
             "F1 ignores the True Negative cell of the confusion matrix; MCC uses all four cells, so two models with the same F1 can still be distinguished by their MCC.": "b",
             "MCC works only on balanced datasets, so reporting it alongside F1 confirms that the test set is balanced.": "c",
             "MCC is computed without the sigmoid or softmax, so it bypasses calibration issues that affect F1.": "d",
-        },
+        }
+    q_cls_mcc_vs_f1 = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_CLS_MCC_VS_F1", _options),
     )
     q_cls_mcc_vs_f1
     return (q_cls_mcc_vs_f1,)
@@ -1146,11 +1209,11 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q19_tp = mo.ui.number(start=0, stop=1000, step=1, label="TP (abnormal predicted abnormal)")
-    q19_fn = mo.ui.number(start=0, stop=1000, step=1, label="FN (abnormal predicted normal)")
-    q19_fp = mo.ui.number(start=0, stop=1000, step=1, label="FP (normal predicted abnormal)")
-    q19_tn = mo.ui.number(start=0, stop=1000, step=1, label="TN (normal predicted normal)")
+def _(mo, submission_default):
+    q19_tp = mo.ui.number(start=0, stop=1000, step=1, label="TP (abnormal predicted abnormal)", value=submission_default("Q19_TP"))
+    q19_fn = mo.ui.number(start=0, stop=1000, step=1, label="FN (abnormal predicted normal)", value=submission_default("Q19_FN"))
+    q19_fp = mo.ui.number(start=0, stop=1000, step=1, label="FP (normal predicted abnormal)", value=submission_default("Q19_FP"))
+    q19_tn = mo.ui.number(start=0, stop=1000, step=1, label="TN (normal predicted normal)", value=submission_default("Q19_TN"))
     mo.vstack([q19_tp, q19_fn, q19_fp, q19_tn])
     return q19_fn, q19_fp, q19_tn, q19_tp
 
@@ -1211,15 +1274,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_seg_taskframing = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Input x = an RGB cell-crop image; output y = a per-pixel class label map with values in {0, 1, 2}; task = semantic segmentation.": "a",
             "Input x = an RGB cell-crop image; output y = a single class label per image; task = whole-image multi-class classification.": "b",
             "Input x = an RGB cell-crop image; output y = a real-valued mask with continuous values in [0, 1]; task = pixel-wise regression.": "c",
             "Input x = an RGB cell-crop image; output y = bounding-box coordinates around each cell; task = object detection.": "d",
-        },
+        }
+    q_seg_taskframing = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_SEG_TASKFRAMING", _options),
     )
     q_seg_taskframing
     return (q_seg_taskframing,)
@@ -1265,15 +1330,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_seg_pixacc = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Most pixels belong to the background class, so a model can score highly while failing on important structures (cytoplasm and nucleus).": "a",
             "Pixel accuracy cannot be computed for segmentation tasks.": "b",
             "Pixel accuracy is always lower than Dice.": "c",
             "Pixel accuracy ignores the background class.": "d",
-        },
+        }
+    q_seg_pixacc = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_SEG_PIXACC", _options),
     )
     q_seg_pixacc
     return (q_seg_pixacc,)
@@ -1315,15 +1382,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_seg_aug_asym = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "All four, applied identically.": "a",
             "Only flip and rotation; brightness and noise apply to the image only.": "b",
             "Only brightness and noise; geometric augmentations break segmentation alignment.": "c",
             "None — augmentation isn't safe in segmentation.": "d",
-        },
+        }
+    q_seg_aug_asym = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_SEG_AUG_ASYM", _options),
     )
     q_seg_aug_asym
     return (q_seg_aug_asym,)
@@ -1344,15 +1413,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_seg_dice_agg = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Method (i) — a 'no-foreground' image gives Dice = 1 by convention, inflating the per-image average.": "a",
             "Method (ii) — summing TP/FP/FN across images amplifies the effect of empty images.": "b",
             "Both methods are equivalent.": "c",
             "Neither — Dice cannot be computed at all on no-foreground images.": "d",
-        },
+        }
+    q_seg_dice_agg = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_SEG_DICE_AGG", _options),
     )
     q_seg_dice_agg
     return (q_seg_dice_agg,)
@@ -1369,15 +1440,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_seg_diceloss = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Dice loss is faster to compute than cross-entropy.": "a",
             "Dice loss directly optimizes the metric you care about, sidestepping the per-pixel imbalance that cross-entropy struggles with on rare classes.": "b",
             "Dice loss requires fewer epochs to train.": "c",
             "Dice loss is the only loss compatible with multi-class segmentation.": "d",
-        },
+        }
+    q_seg_diceloss = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_SEG_DICELOSS", _options),
     )
     q_seg_diceloss
     return (q_seg_diceloss,)
@@ -1422,15 +1495,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_seg_perclass = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Each class gets its own score, so poor performance on small but important structures (e.g. nuclei) is not hidden by good background performance.": "a",
             "It is always identical to pixel accuracy.": "b",
             "It removes the need for visual inspection.": "c",
             "It only evaluates minority classes.": "d",
-        },
+        }
+    q_seg_perclass = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_SEG_PERCLASS", _options),
     )
     q_seg_perclass
     return (q_seg_perclass,)
@@ -1485,15 +1560,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_seg_imbalance = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Background pixels often dominate, so the loss may under-emphasize smaller classes such as cytoplasm or nucleus.": "a",
             "It prevents the use of convolutional networks.": "b",
             "It makes Dice impossible to compute.": "c",
             "It means segmentation should be treated as classification instead.": "d",
-        },
+        }
+    q_seg_imbalance = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_SEG_IMBALANCE", _options),
     )
     q_seg_imbalance
     return (q_seg_imbalance,)
@@ -1657,15 +1734,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_seg_resize = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "The mask was normalized correctly.": "a",
             "Bilinear interpolation was applied to the mask, creating invalid intermediate values.": "b",
             "The model discovered new valid segmentation classes.": "c",
             "The RGB image was accidentally converted to grayscale.": "d",
-        },
+        }
+    q_seg_resize = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_SEG_RESIZE", _options),
     )
     q_seg_resize
     return (q_seg_resize,)
@@ -1682,15 +1761,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_seg_paired = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "The image can be flipped, but the mask should stay unchanged.": "a",
             "The mask can be flipped, but the image should stay unchanged.": "b",
             "The image and mask must be transformed together so corresponding pixels remain aligned.": "c",
             "Paired augmentation is only important in image classification.": "d",
-        },
+        }
+    q_seg_paired = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_SEG_PAIRED", _options),
     )
     q_seg_paired
     return (q_seg_paired,)
@@ -1934,15 +2015,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_seg_nucleus = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Background Dice.": "a",
             "Nucleus Dice.": "b",
             "Training pixel accuracy.": "c",
             "Image-level classification accuracy.": "d",
-        },
+        }
+    q_seg_nucleus = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_SEG_NUCLEUS", _options),
     )
     q_seg_nucleus
     return (q_seg_nucleus,)
@@ -1964,15 +2047,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_seg_e15a = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Pretrained-encoder UNet — ImageNet features transfer well to small high-contrast structures like nuclei.": "a",
             "SmallUNet from scratch — random initialisation avoids overfitting on small data.": "b",
             "Otsu — automatic thresholding handles nucleus intensity directly.": "c",
             "All three are roughly equal on nucleus Dice.": "d",
-        },
+        }
+    q_seg_e15a = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_SEG_E15A", _options),
     )
     q_seg_e15a
     return (q_seg_e15a,)
@@ -1988,15 +2073,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_seg_e15b = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Train for more epochs to drive validation Dice higher.": "a",
             "Inspect qualitative predictions on edge cases (overlapping cells, staining variation, out-of-focus images) and report per-class Dice on the held-out test set.": "b",
             "Switch from Dice to pixel accuracy.": "c",
             "Skip — visualization is unreliable for segmentation, only Dice matters.": "d",
-        },
+        }
+    q_seg_e15b = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_SEG_E15B", _options),
     )
     q_seg_e15b
     return (q_seg_e15b,)
@@ -2076,15 +2163,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_mil_taskframing = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Input x = a bag of K cell-crop instances; output y = a single binary bag-level label (1 if the bag contains ≥1 eosinophil, else 0); task = bag-level binary classification with weak supervision (no instance labels seen during training).": "a",
             "Input x = a single cell-crop image; output y = the WBC cell type; task = multi-class classification.": "b",
             "Input x = a whole-slide image; output y = a pixel-wise mask marking eosinophils; task = semantic segmentation.": "c",
             "Input x = a bag of K instances; output y = a length-K vector of instance-level labels; task = fully supervised instance classification.": "d",
-        },
+        }
+    q_mil_taskframing = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_MIL_TASKFRAMING", _options),
     )
     q_mil_taskframing
     return (q_mil_taskframing,)
@@ -2102,15 +2191,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_mil_hidden = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "The bag label.": "a",
             "The number of instances per bag.": "b",
             "Which individual instance caused the positive bag label.": "c",
             "The image features for each cell.": "d",
-        },
+        }
+    q_mil_hidden = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_MIL_HIDDEN", _options),
     )
     q_mil_hidden
     return (q_mil_hidden,)
@@ -2127,15 +2218,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_mil_perm = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Changing the order of cells in a bag should not change the bag-level prediction.": "a",
             "Cells are sorted by clinical importance.": "b",
             "The first cell in the bag should always receive the highest weight.": "c",
             "Segmentation masks are unordered.": "d",
-        },
+        }
+    q_mil_perm = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_MIL_PERM", _options),
     )
     q_mil_perm
     return (q_mil_perm,)
@@ -2261,15 +2354,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_mil_anypos = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Mean pooling — all cells contribute equally to the bag label.": "a",
             "Max pooling — one strongly positive instance can make the whole bag positive.": "b",
             "Random pooling — the rare-cell location is unknown.": "c",
             "Pixel accuracy — MIL is a pixel-level task.": "d",
-        },
+        }
+    q_mil_anypos = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_MIL_ANYPOS", _options),
     )
     q_mil_anypos
     return (q_mil_anypos,)
@@ -2353,15 +2448,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_mil_dilution = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "The signal from the one rare cell may be diluted by the other non-rare cells.": "a",
             "Mean pooling cannot process fixed-size bags.": "b",
             "Mean pooling requires segmentation masks.": "c",
             "Mean pooling is not permutation-invariant.": "d",
-        },
+        }
+    q_mil_dilution = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_MIL_DILUTION", _options),
     )
     q_mil_dilution
     return (q_mil_dilution,)
@@ -2453,15 +2550,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_mil_attn = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "The model considered that instance important for the bag-level prediction.": "a",
             "The instance is guaranteed to be the true rare-class cell.": "b",
             "The instance must have the best segmentation mask.": "c",
             "The bag must be negative.": "d",
-        },
+        }
+    q_mil_attn = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_MIL_ATTN", _options),
     )
     q_mil_attn
     return (q_mil_attn,)
@@ -2482,15 +2581,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_mil_pool_params = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Mean pooling — averaging features adds learnable weights.": "a",
             "Max pooling — element-wise max is parameter-heavy.": "b",
             "Attention pooling — the gated attention head (parallel tanh & sigmoid branches → score → softmax) adds parameters that mean and max do not have.": "c",
             "All three have identical parameter counts.": "d",
-        },
+        }
+    q_mil_pool_params = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_MIL_POOL_PARAMS", _options),
     )
     q_mil_pool_params
     return (q_mil_pool_params,)
@@ -2507,15 +2608,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_mil_attn_behavior = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Spread attention uniformly across all K cells (≈ 1/K each).": "a",
             "Concentrate most of its attention mass on the eosinophil, leaving the other K−1 instances with low attention weights.": "b",
             "Concentrate on whichever cell is largest in the image, regardless of class.": "c",
             "Concentrate on the cell with the highest pixel brightness.": "d",
-        },
+        }
+    q_mil_attn_behavior = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_MIL_ATTN_BEHAVIOR", _options),
     )
     q_mil_attn_behavior
     return (q_mil_attn_behavior,)
@@ -2537,15 +2640,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_mil_auroc_rank = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Model A.": "a",
             "Model B.": "b",
             "Both have the same AUROC.": "c",
             "Cannot tell without seeing the raw scores.": "d",
-        },
+        }
+    q_mil_auroc_rank = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_MIL_AUROC_RANK", _options),
     )
     q_mil_auroc_rank
     return (q_mil_auroc_rank,)
@@ -2562,15 +2667,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_mil_auroc_calib = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Yes — AUROC ≥ 0.95 implies good calibration.": "a",
             "No — AUROC measures only ranking; calibration is a separate property and must be measured separately.": "b",
             "Only after applying softmax.": "c",
             "Yes, but only on the test set.": "d",
-        },
+        }
+    q_mil_auroc_calib = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_MIL_AUROC_CALIB", _options),
     )
     q_mil_auroc_calib
     return (q_mil_auroc_calib,)
@@ -2596,15 +2703,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_mil_proc_ship = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Model A — higher AUROC.": "a",
             "Model B — much higher AUPRC at very low prevalence.": "b",
             "Both equally useful.": "c",
             "Neither — AUROC and AUPRC are uncorrelated.": "d",
-        },
+        }
+    q_mil_proc_ship = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_MIL_PROC_SHIP", _options),
     )
     q_mil_proc_ship
     return (q_mil_proc_ship,)
@@ -2622,10 +2731,11 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _(mo, submission_default):
     q_mil_proc_fpratio = mo.ui.number(
         start=0, stop=200, step=1,
         label="False alarms per true positive:",
+        value=submission_default("Q_MIL_PROC_FPRATIO"),
     )
     q_mil_proc_fpratio
     return (q_mil_proc_fpratio,)
@@ -2640,15 +2750,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_mil_proc_why = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "AUROC integrates TPR vs FPR; a tiny absolute change in FPR hides a huge change in raw FP count when prevalence is very low. AUROC is prevalence-blind.": "a",
             "AUROC is broken under class imbalance.": "b",
             "AUROC counts false positives directly.": "c",
             "The test set was too small.": "d",
-        },
+        }
+    q_mil_proc_why = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_MIL_PROC_WHY", _options),
     )
     q_mil_proc_why
     return (q_mil_proc_why,)
@@ -2665,15 +2777,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_mil_synth = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Synthetic bags are cleaner and smaller than real slides, with fewer artifacts and fewer irrelevant cells.": "a",
             "Synthetic bags are always harder than real whole-slide images.": "b",
             "Synthetic bags automatically solve patient-level data leakage.": "c",
             "Synthetic bags remove the need for train/validation/test splits.": "d",
-        },
+        }
+    q_mil_synth = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_MIL_SYNTH", _options),
     )
     q_mil_synth
     return (q_mil_synth,)
@@ -2701,15 +2815,17 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_mil_clam_pseudo = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "Each cell gets the bag's label copied onto it (as in instance-space MIL); the per-cell classifier sees the noisy labels directly.": "a",
             "For a bag of class c, the top-B attention-ranked cells get +1 and the bottom-B get -1; bags that do not have class c contribute every cell as -1 for the class-c head.": "b",
             "A pretrained pathology foundation model is used to label every cell before training, and CLAM treats those labels as ground truth.": "c",
             "CLAM samples cell labels uniformly at random from {-1, +1} so the auxiliary loss acts as a regulariser.": "d",
-        },
+        }
+    q_mil_clam_pseudo = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_MIL_CLAM_PSEUDO", _options),
     )
     q_mil_clam_pseudo
     return (q_mil_clam_pseudo,)
@@ -2793,15 +2909,17 @@ def _(IMAGES_DIR, Image, np, pd, plt):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    q_mil_pool_fingerprints = mo.ui.radio(
-        options={
+def _(mo, submission_radio_default):
+    _options = {
             "A = mean,      B = max,       C = attention": "a",
             "A = mean,      B = attention, C = max":       "b",
             "A = attention, B = mean,      C = max":       "c",
             "A = max,       B = attention, C = mean":      "d",
-        },
+        }
+    q_mil_pool_fingerprints = mo.ui.radio(
+        options=_options,
         label="Your answer:",
+        value=submission_radio_default("Q_MIL_POOL_FINGERPRINTS", _options),
     )
     q_mil_pool_fingerprints
     return (q_mil_pool_fingerprints,)
